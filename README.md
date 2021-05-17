@@ -33,6 +33,10 @@ A REST API for the R&P WebXR application
 
     # JWT KEY (change it)
     JWT_KEY=somesecretyouchoose
+
+    # Account creds to API (change it)
+    AUTH_USER=someuser
+    AUTH_PASS=somepwd
     ```
 
 ## Running the app
