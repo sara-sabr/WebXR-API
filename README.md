@@ -3,7 +3,6 @@
 A REST API for the R&P WebXR application
 
 ## Built With 
-- Azure 
 - NEST.JS
 - TypeScript
 
@@ -21,25 +20,20 @@ A REST API for the R&P WebXR application
 
 2. Clone this repo
     
-    ```git clone https://github.com/sara-sabr/WebXR-Nest_API.git```
+    ```git clone https://github.com/sara-sabr/WebXR-API.git```
 
 3. Install the NPM packages
     
     ```npm install```
 
-4. Create a `.env` file and add the following:
-    
-    - Your localhost port
-    
-    ```PORT=YOURPORTNUMBER```
-    
-    - Your storage account name
-    
-    ```ACCOUNT_NAME=YOURSTORAGEACCOUNTNAME```
-    
-    - Your Azure Storage Connection String 
-    
-    ```AZURE_STORAGE_CONNECTION_STRING=YOURCONNECTIONSTRING```
+4. Create a `.env` file and add the following contents:
+    ```
+    # Port number
+    PORT=3000
+
+    # JWT KEY (change it)
+    JWT_KEY=somesecretyouchoose
+    ```
 
 ## Running the app
 
