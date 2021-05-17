@@ -37,6 +37,9 @@ A REST API for the R&P WebXR application
     # Account creds to API (change it)
     AUTH_USER=someuser
     AUTH_PASS=somepwd
+
+    # Set this to true if using Azure App Service HTTPS offload
+    IS_AZURE=false
     ```
 
 ## Running the app

@@ -8,15 +8,25 @@ import { readFileSync } from 'fs';
 
 
 async function bootstrap() {
-  const httpsOptions = {
-    key: readFileSync('./certs/privateKey.pem'),
-    cert: readFileSync('./certs/certificate.pem')
+
+  let app;
+
+  // SSL for local
+  if (process.env.IS_AZURE === 'true') {
+    app = await NestFactory.create(AppModule);  
+  } else {
+    const httpsOptions = {
+      key: readFileSync('./certs/privateKey.pem'),
+      cert: readFileSync('./certs/certificate.pem')
+    }
+    app = await NestFactory.create(AppModule, {httpsOptions});  
   }
+  
+  // CORS
   let corsOptions = {
     origin: '*',
     allowHeaders: ['Content-Type', 'Authorization']
-  }
-  const app = await NestFactory.create(AppModule, {httpsOptions});
+  }  
   app.enableCors(corsOptions);
 
   const config = new DocumentBuilder()
