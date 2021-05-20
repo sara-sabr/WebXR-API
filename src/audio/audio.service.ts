@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {SpeechConfig, AudioConfig, AudioInputStream, SpeechRecognizer, ResultReason, CancellationDetails, CancellationReason, SpeechSynthesisOutputFormat, SpeechSynthesizer, AudioOutputStream, NoMatchDetails} from 'microsoft-cognitiveservices-speech-sdk';
+import {SpeechConfig, AudioConfig, SpeechRecognizer, ResultReason, CancellationDetails, CancellationReason, SpeechSynthesisOutputFormat, SpeechSynthesizer} from 'microsoft-cognitiveservices-speech-sdk';
 import { PassThrough } from 'stream';
-import { createReadStream } from 'fs';
 
 
 @Injectable()
@@ -19,18 +18,7 @@ export class AudioService {
         
         console.log(file.size);
 
-        //let audioConfig = AudioConfig.fromWavFileInput(file.buffer);
-
-        let pushStream = AudioInputStream.createPushStream();
-
-        createReadStream('').on('data', function(arrayBuffer: ArrayBuffer) {
-            pushStream.write(arrayBuffer.slice(0));
-            console.log(arrayBuffer.slice(0).byteLength);
-        }).on('end', function() {
-            pushStream.close();
-        });
-        console.log(pushStream);
-        let audioConfig = AudioConfig.fromStreamInput(pushStream);
+        let audioConfig = AudioConfig.fromWavFileInput(file.buffer);
         let recognizer = new SpeechRecognizer(this.speechConfig, audioConfig);
 
         console.log("sending to Azure API")
@@ -69,27 +57,31 @@ export class AudioService {
        return audioResult;
        
     }
-    async convertTextToAudio(text :string){
+
+    async convertTextToAudio(text :string): Promise<Blob>{
         this.speechConfig.speechSynthesisOutputFormat = SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
         this.speechConfig.speechSynthesisVoiceName = 'en-CA-LiamNeural';
-
-        const synthesizer = new SpeechSynthesizer(this.speechConfig, undefined);
-        let a = synthesizer.speakTextAsync(text, (result) => {
-            synthesizer.close();
+        let currentLoop = 0;
+        let functionComplete = false;
+        let audioFile :Blob;
+        const synthesizer = new SpeechSynthesizer(this.speechConfig);
+        synthesizer.speakTextAsync(text, (result) => {
+            console.log('inside the speakTextAsync')
             if (result){
-                const { audioData } = result;
-
+                audioFile = new Blob([result.audioData], {type: 'audio/mpeg'});
+                functionComplete = true;
                 synthesizer.close();
-                const bufferStream = new PassThrough();
-                bufferStream.end(Buffer.from(audioData));
-                return bufferStream;
+                
             }
         },
         (err) => {
             console.log(err);
             synthesizer.close();
         })
-
-        return a;
+        while(!functionComplete && currentLoop < 10){
+            await this.snooze(1000);
+            currentLoop++;
+        }
+        return audioFile;
     }
 }
