@@ -2,14 +2,14 @@
 
 A REST API for the R&P WebXR application
 
-## Built With 
+## Built With
 - NEST.JS
 - TypeScript
 
 ## Prerequisites
 - [Azure account](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio)
 - [Azure storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create) to create storage blobs
-- The lastest version of [Node.js](https://nodejs.org/en/download/) 
+- The lastest version of [Node.js](https://nodejs.org/en/download/)
 
 ## Installation
 
@@ -19,11 +19,11 @@ A REST API for the R&P WebXR application
     - Copy the value, later it will be added to your environment variable
 
 2. Clone this repo
-    
+
     ```git clone https://github.com/sara-sabr/WebXR-API.git```
 
 3. Install the NPM packages
-    
+
     ```npm install```
 
 4. Create a `.env` file and add the following contents:
@@ -40,6 +40,9 @@ A REST API for the R&P WebXR application
 
     # Set this to true if using Azure App Service HTTPS offload
     IS_AZURE=false
+
+    # Chatbot URL
+    CHATBOT_URL=URL goes here ...
     ```
 
 ## Running the app
@@ -67,7 +70,7 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-## Usage 
+## Usage
 This application is created for the purpose of using API endpoints for Azure storage containers and blobs.
 
 ## Support
@@ -78,4 +81,4 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
   Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-"# WebXR-Nest_API" 
+"# WebXR-Nest_API"
