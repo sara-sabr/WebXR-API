@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { HealthModule } from './health/Health.module';
+import { AudioModule } from './audio/audio.module';
 
 @Module({
   controllers: [AppController],
@@ -16,7 +17,7 @@ import { HealthModule } from './health/Health.module';
             UsersModule, 
             ServeStaticModule.forRoot({
               rootPath: join(__dirname, '..', 'client'),
-            }),
+            }), AudioModule,
            ],
 })
 export class AppModule {}

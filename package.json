@@ -33,6 +33,7 @@
     "@nestjs/serve-static": "^2.1.4",
     "@nestjs/swagger": "^4.8.0",
     "dotenv": "^8.6.0",
+    "microsoft-cognitiveservices-speech-sdk": "^1.17.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
