@@ -36,11 +36,8 @@ export class AudioController {
     @Header('Content-Type', 'audio/mpeg')
     @Public()
     async sample(@Res() response: Response): Promise<void>{
-      const mp3File = await this.audioService.convertTextToAudio('Hello and welcome');
-      response.send(mp3File);
-      // mp3File.
-      // let stream = createWriteStream()
-      // response.pipe(mp3File);
+      const audioStream = await this.audioService.convertTextToAudio('Hello and welcome');
+      audioStream.pipe(response);
     }
 
 }

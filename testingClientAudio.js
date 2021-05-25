@@ -13,10 +13,8 @@ fetch('https://localhost:8000/audio/test', fetchOptions).then(data => {
     //console.log(data);
     return data.arrayBuffer();
 }).then(buffer => {
-        console.log(buffer.byteLength);
-        const uint16Buf = new Uint16Array(buffer); 
         try{
-        fs.writeFileSync('./test.mp3', uint16Buf);}
+        fs.writeFileSync('./test.mp3', Buffer.from(buffer));}
         catch(e){
             console.log(e);
         }

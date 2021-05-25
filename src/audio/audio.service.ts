@@ -10,12 +10,12 @@ export class AudioService {
     region = process.env.COGNITIVE_SERVICES_REGION;
     speechConfig = SpeechConfig.fromSubscription(this.subKey, this.region);
     snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
-    
+
     async speechToText(file: Express.Multer.File): Promise<string>{
         let audioResult = '';
         let currentLoop = 0;
         let functionComplete = false;
-        
+
         console.log(file.size);
 
         let audioConfig = AudioConfig.fromWavFileInput(file.buffer);
@@ -35,7 +35,7 @@ export class AudioService {
                 case ResultReason.Canceled:
                     const cancellation = CancellationDetails.fromResult(result);
                     console.log(`CANCELED: Reason=${cancellation.reason}`);
-            
+
                     if (cancellation.reason == CancellationReason.Error) {
                         console.log(`CANCELED: ErrorCode=${cancellation.ErrorCode}`);
                         console.log(`CANCELED: ErrorDetails=${cancellation.errorDetails}`);
@@ -55,25 +55,26 @@ export class AudioService {
     }
        console.log("done recognizing " + audioResult)
        return audioResult;
-       
+
     }
 
-    async convertTextToAudio(text :string): Promise<Uint16Array>{
+    async convertTextToAudio(text :string): Promise<PassThrough>{
         this.speechConfig.speechSynthesisOutputFormat = SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
         this.speechConfig.speechSynthesisVoiceName = 'en-CA-LiamNeural';
         let currentLoop = 0;
         let functionComplete = false;
         let audioFile :ArrayBuffer;
-        let int32View: Uint16Array;
+        let bufferStream:PassThrough;
         const synthesizer = new SpeechSynthesizer(this.speechConfig);
         synthesizer.speakTextAsync(text, (result) => {
             console.log('inside the speakTextAsync');
             if (result){
                 //audioFile = new ArrayBuffer(result.audioData.byteLength);
-                int32View = new Uint16Array(result.audioData);
+                const { audioData } = result;
                 functionComplete = true;
                 synthesizer.close();
-                
+                bufferStream = new PassThrough();
+                bufferStream.end(Buffer.from(audioData));
             }
         },
         (err) => {
@@ -84,6 +85,6 @@ export class AudioService {
             await this.snooze(1000);
             currentLoop++;
         }
-        return int32View;
+        return bufferStream;
     }
 }
