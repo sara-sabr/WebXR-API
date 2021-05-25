@@ -11,7 +11,7 @@ export class AudioService {
     speechConfig = SpeechConfig.fromSubscription(this.subKey, this.region);
     snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
     
-    async upload(file: Express.Multer.File): Promise<string>{
+    async speechToText(file: Express.Multer.File): Promise<string>{
         let audioResult = '';
         let currentLoop = 0;
         let functionComplete = false;
@@ -58,17 +58,19 @@ export class AudioService {
        
     }
 
-    async convertTextToAudio(text :string): Promise<Blob>{
+    async convertTextToAudio(text :string): Promise<Uint16Array>{
         this.speechConfig.speechSynthesisOutputFormat = SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
         this.speechConfig.speechSynthesisVoiceName = 'en-CA-LiamNeural';
         let currentLoop = 0;
         let functionComplete = false;
-        let audioFile :Blob;
+        let audioFile :ArrayBuffer;
+        let int32View: Uint16Array;
         const synthesizer = new SpeechSynthesizer(this.speechConfig);
         synthesizer.speakTextAsync(text, (result) => {
-            console.log('inside the speakTextAsync')
+            console.log('inside the speakTextAsync');
             if (result){
-                audioFile = new Blob([result.audioData], {type: 'audio/mpeg'});
+                //audioFile = new ArrayBuffer(result.audioData.byteLength);
+                int32View = new Uint16Array(result.audioData);
                 functionComplete = true;
                 synthesizer.close();
                 
@@ -82,6 +84,6 @@ export class AudioService {
             await this.snooze(1000);
             currentLoop++;
         }
-        return audioFile;
+        return int32View;
     }
 }
