@@ -1,11 +1,9 @@
 import { Controller, Post, UseInterceptors, UploadedFile, Get, Header, Res } from '@nestjs/common';
 import { AudioService } from './audio.service';
-import {WriteStream, createWriteStream} from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-import { Public } from 'src/auth/constants';
 import { ChatbotService } from 'src/chatbot/chatbot.service';
-import { response, Response } from 'express';
+import { Response } from 'express';
 
 
 @Controller('audio')
@@ -25,8 +23,8 @@ export class AudioController {
             },
           },
         },
-      })
-      async upload(@UploadedFile() file: Express.Multer.File, @Res() response:Response): Promise<void> {
+    })
+    async upload(@UploadedFile() file: Express.Multer.File, @Res() response:Response): Promise<void> {
       const resultText = await this.audioService.speechToText(file);
       const chatbotResponse = await this.chatBotService.getAnswer(resultText);
       const audioStream = await this.audioService.convertTextToAudio(chatbotResponse);
