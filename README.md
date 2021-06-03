@@ -40,13 +40,15 @@ A REST API for the R&P WebXR application
 
     # Set this to true if using Azure App Service HTTPS offload
     IS_AZURE=false
-    
+
     # Azure Cognitive Services credentials (change it)
     COGNITIVE_SERVICES_KEY=somekey
     COGNITIVE_SERVICES_REGION=someregion
 
     # Chatbot URL
     CHATBOT_URL=URL goes here ...
+    CHATBOT_ORG=organization id
+    CHATBOT_CAT=category
     ```
 
 ## Running the app

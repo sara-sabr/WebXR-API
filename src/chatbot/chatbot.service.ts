@@ -4,7 +4,14 @@ import axios from 'axios';
 
 @Injectable()
 export class ChatbotService {
+    /** End point URL */
     private chatbotUrl = process.env.CHATBOT_URL;
+    /** The organization */
+    private chatbotOrg = process.env.CHATBOT_ORG;
+    /** The category */
+    private chatbotCat = process.env.CHATBOT_CAT;
+    /** FAQ cache */
+    private faqCache: Map<String,any> = undefined;
 
     /**
      * Sends a question to the chatbot to get a response.
@@ -14,7 +21,8 @@ export class ChatbotService {
      */
     public async getAnswer(question:string):Promise<string> {
         const data = JSON.stringify({
-            "cat": "SCD_Knowledgebase",
+            "orgId": this.chatbotOrg,
+            "cat": this.chatbotCat,
             "inq": question,
             "rspCnt": 1
         });
@@ -27,7 +35,50 @@ export class ChatbotService {
 
         const robotResponse = await axios.post(this.chatbotUrl, data, config)
         const robotRpt:{[key:string]:any} = robotResponse.data;
-        return this.santize(robotRpt.rptObjLst[0].pRsp);
+
+        let chatbotAnswer = this.santize(robotRpt.rptObjLst[0].pRsp);
+
+        if (chatbotAnswer === '') {
+            // Follow the indicator till we get an answer from the FAQ.
+            chatbotAnswer = await this.findAnswerFromCache(robotRpt.rptObjLst[0].pInq);
+            chatbotAnswer = chatbotAnswer.replace(/\<li\>/g, '\n- ');
+            chatbotAnswer = this.santize(chatbotAnswer);
+        }
+
+        return chatbotAnswer;
+    }
+
+    /**
+     * Find an answer from the FAQ cache. If it isn't loaded, load it first.
+     *
+     * @param indicator the indicator to lookup.
+     */
+    public async findAnswerFromCache(indicator: string):Promise<string> {
+        if (this.faqCache === undefined) {
+            await this.refreshFaq();
+        }
+
+        return this.findAnswerFromCacheHelper(indicator);
+    }
+
+    /**
+     * Find the answer from the cache by following the tree.
+     */
+    private findAnswerFromCacheHelper(indicator: string):string {
+        let currentAnswer = this.faqCache.get(indicator);
+
+        while (currentAnswer.answer && currentAnswer.answer.default === '') {
+            currentAnswer = this.faqCache.get(currentAnswer.loadRsp.qName);
+        }
+
+        return currentAnswer.answer.default;
+    }
+
+    /**
+     * Refresh the cache from the chatbot.
+     */
+    public async refreshFaq():Promise<void> {
+        this.faqCache = await this.getFaq();
     }
 
     /**
@@ -35,9 +86,10 @@ export class ChatbotService {
      *
      * @returns the entire FAQ
      */
-    public async getFaq():Promise<Map<string, string>> {
+    public async getFaq():Promise<Map<string, any>> {
         const data = JSON.stringify({
             "op": "getFaqLst",
+            "orgId": this.chatbotOrg,
         });
 
         const config = {
@@ -48,7 +100,7 @@ export class ChatbotService {
 
         const robotResponse = await axios.post(this.chatbotUrl, data, config)
         const robotRpt:{[key:string]:any} = robotResponse.data.rptObjLst;
-        const faqMap = new Map<string, string>();
+        const faqMap = new Map<string, any>();
 
         for (let key in robotRpt) {
             this.buildFAQ(robotRpt[key], faqMap);
@@ -74,10 +126,10 @@ export class ChatbotService {
      * @param currentNode the current node
      * @param faqMap the running question and answer map.
      */
-    private buildFAQ(currentNode:any, faqMap: Map<string, string>):void {
+    private buildFAQ(currentNode:any, faqMap: Map<string, any>):void {
         if (currentNode.question) {
             // Need to handle links
-            faqMap.set(currentNode.question, this.santize(JSON.parse(currentNode.answer).answer.default));
+            faqMap.set(currentNode.question, JSON.parse(currentNode.answer));
             return;
         }
 
