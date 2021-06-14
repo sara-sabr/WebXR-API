@@ -49,8 +49,8 @@ export class AudioService {
            console.log(err);
            functionComplete = true;
        })
-       while(!functionComplete && currentLoop < 10){
-        await this.snooze(1000);
+       while(!functionComplete && currentLoop < 70){
+        await this.snooze(150);
         currentLoop++;
     }
        console.log("done recognizing " + audioResult)
@@ -81,8 +81,8 @@ export class AudioService {
             console.log(err);
             synthesizer.close();
         })
-        while(!functionComplete && currentLoop < 10){
-            await this.snooze(1000);
+        while(!functionComplete && currentLoop < 70){
+            await this.snooze(150);
             currentLoop++;
         }
         return bufferStream;
