@@ -16,14 +16,10 @@ export class AudioService {
         let currentLoop = 0;
         let functionComplete = false;
 
-        console.log(file.size);
-
         let audioConfig = AudioConfig.fromWavFileInput(file.buffer);
         let recognizer = new SpeechRecognizer(this.speechConfig, audioConfig);
 
-        console.log("sending to Azure API")
         recognizer.recognizeOnceAsync(result => {
-            console.log("inside the recognize function");
             switch (result.reason) {
                 case ResultReason.RecognizedSpeech:
                     console.log(`RECOGNIZED: Text=${result.text}`);
@@ -53,9 +49,8 @@ export class AudioService {
         await this.snooze(150);
         currentLoop++;
     }
-       console.log("done recognizing " + audioResult)
-       return audioResult;
 
+       return audioResult;
     }
 
     async convertTextToAudio(text :string): Promise<PassThrough>{
@@ -63,13 +58,10 @@ export class AudioService {
         this.speechConfig.speechSynthesisVoiceName = 'en-CA-LiamNeural';
         let currentLoop = 0;
         let functionComplete = false;
-        let audioFile :ArrayBuffer;
         let bufferStream:PassThrough;
         const synthesizer = new SpeechSynthesizer(this.speechConfig);
         synthesizer.speakTextAsync(text, (result) => {
-            console.log('inside the speakTextAsync');
             if (result){
-                //audioFile = new ArrayBuffer(result.audioData.byteLength);
                 const { audioData } = result;
                 functionComplete = true;
                 synthesizer.close();
